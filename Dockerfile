@@ -12,7 +12,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Use an official OpenJDK runtime image to run the application
-FROM openjdk:17-jdk-slim
+FROM maven:3.8.1-openjdk-17
 
 # Set the working directory to /app
 WORKDIR /app
@@ -25,3 +25,4 @@ EXPOSE 8080
 
 # Run the JAR file when the container starts
 ENTRYPOINT ["java", "-jar", "plenti-backend.jar"]
+
