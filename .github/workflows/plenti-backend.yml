@@ -1,0 +1,109 @@
+name: Build and deploy container app to Huawei Cloud-plenti-backend-service-mp.
+
+on:
+  push:
+    branches:
+      - hw-staging-mp
+  workflow_dispatch:
+
+jobs:
+  Build:
+    name: Build
+    runs-on: ubuntu-latest
+    environment: dev
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # - name: Download release artifact
+      #   id: download_release
+      #   uses: robinraju/release-downloader@v1.8
+      #   continue-on-error: true
+      #   with:
+      #     repository: "Homewin-Nigeria-Ltd/motopay-util"
+      #     latest: true
+      #     fileName: "m2.zip"
+      #     zipBall: true
+      #     out-file-path: "${{ github.workspace }}/m2"
+      #     extract: true
+      #     token: ${{ secrets.TOKEN_UTIL }}
+
+      # # NEW: Show folder tree for debugging.
+      # - name: Show m2 folder structure
+      #   run: |
+      #     echo "📂 Extracted m2.zip folder structure:"
+      #     ls -R ./m2 || echo "❌ m2 folder missing"
+
+      # # NEW: Find the JAR dynamically
+      # - name: Locate motopay-util jar
+      #   run: |
+      #     JAR_PATH=$(find ./m2 -name "motopay-util-1.0-SNAPSHOT.jar" | head -n 1)
+      #     if [ -z "$JAR_PATH" ]; then
+      #       echo "❌ JAR file not found in extracted m2.zip"
+      #       exit 1
+      #     fi
+      #     echo "✅ Found JAR at: $JAR_PATH"
+      #     echo "JAR_PATH=$JAR_PATH" >> $GITHUB_ENV
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      # - name: Install motopay-util in local Maven repo
+      #   run: |
+      #     mvn install:install-file \
+      #       -Dfile="$JAR_PATH" \
+      #       -DgroupId=com.motopay.util \
+      #       -DartifactId=motopay-util \
+      #       -Dversion=1.0-SNAPSHOT \
+      #       -Dpackaging=jar
+
+      - name: Build with Maven
+        run: |
+          mvn dependency:resolve-plugins
+          mvn clean install -DskipTests
+          mvn -B package --file pom.xml -DskipTests
+
+      - name: Cache the Maven packages to speed up build
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Log in to Huawei Cloud SWR
+        uses: huaweicloud/swr-login@v2.1.0
+        with:
+          access-key-id: ${{ secrets.HW_ACCESS_KEY }}
+          access-key-secret: ${{ secrets.HW_SECRET_KEY }}
+          region: af-south-1
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t swr.af-south-1.myhuaweicloud.com/moto/plenti-backend-service:${{ github.sha }} .
+          docker push swr.af-south-1.myhuaweicloud.com/moto/plenti-backend-service:${{ github.sha }}
+
+      - name: Configure kubectl for Huawei Cloud CCE
+        run: |
+          sudo mkdir -p $HOME/.kube
+          sudo chown -R runner:runner $HOME/.kube
+          export KUBECONFIG=$HOME/.kube/config
+          echo "${{ secrets.KUBE_CONFIG_DATA }}" > $KUBECONFIG
+
+      - name: Update deployment
+        run: |
+          sed -i "s@swr.af-south-1.myhuaweicloud.com/moto/plenti-backend-service:[a-z0-9]*@swr.af-south-1.myhuaweicloud.com/moto/plenti-backend-service:${{ github.sha }}@g" deployment.yaml
+
+      - name: Debugging
+        run: |
+          kubectl version
+          kubectl cluster-info
+          kubectl get nodes
+
+      - name: Deploy to Huawei CCE
+        run: |
+          kubectl apply -f deployment.yaml
