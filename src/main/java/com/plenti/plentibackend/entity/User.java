@@ -45,6 +45,19 @@ public class User {
     @Column(nullable = false)
     private Double metaCoins = 0.0;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.USER;
+
+    @Column(nullable = false)
+    private Boolean suspended = false;
+
+    @Column(nullable = false)
+    private Double trustScore = 100.0;
+
+    @Column(nullable = false)
+    private Boolean isGuest = false;
+
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "user_payment_methods", 
                     joinColumns = @JoinColumn(name = "user_id"))
@@ -60,6 +73,18 @@ public class User {
         createdAt = LocalDateTime.now();
         if (metaCoins == null) {
             metaCoins = 0.0;
+        }
+        if (role == null) {
+            role = Role.USER;
+        }
+        if (suspended == null) {
+            suspended = false;
+        }
+        if (trustScore == null) {
+            trustScore = 100.0;
+        }
+        if (isGuest == null) {
+            isGuest = false;
         }
     }
 }
