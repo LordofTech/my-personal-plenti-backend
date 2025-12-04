@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: plenti-mysql-prod
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secure_password}
+      MYSQL_DATABASE: ${DB_NAME:-plenti_db}
+      MYSQL_USER: ${DB_USER:-plenti_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secure_password}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./src/main/resources/db:/docker-entrypoint-initdb.d
+    networks:
+      - plenti-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-secure_password}"]
+      timeout: 20s
+      retries: 10
+      interval: 10s
+    restart: unless-stopped
+
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    container_name: plenti-elasticsearch-prod
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - plenti-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  plenti-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: plenti-backend-prod
+    ports:
+      - "${PORT:-8080}:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:mysql://mysql:3306/${DB_NAME:-plenti_db}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      DB_USER: ${DB_USER:-plenti_user}
+      DB_PASSWORD: ${DB_PASSWORD:-secure_password}
+      JWT_SECRET: ${JWT_SECRET:-plenti-secret-key-for-jwt-token-generation-and-validation-must-be-at-least-256-bits}
+      MONNIFY_API_KEY: ${MONNIFY_API_KEY:-}
+      MONNIFY_SECRET_KEY: ${MONNIFY_SECRET_KEY:-}
+      MONNIFY_CONTRACT_CODE: ${MONNIFY_CONTRACT_CODE:-}
+      MONNIFY_BASE_URL: ${MONNIFY_BASE_URL:-https://api.monnify.com}
+      SMS_API_KEY: ${SMS_API_KEY:-}
+      MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      ELASTICSEARCH_HOST: elasticsearch
+      ELASTICSEARCH_PORT: 9200
+      ELASTICSEARCH_ENABLED: true
+    depends_on:
+      mysql:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - plenti-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      timeout: 10s
+      retries: 5
+      interval: 30s
+      start_period: 60s
+
+volumes:
+  mysql_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+
+networks:
+  plenti-network:
+    driver: bridge

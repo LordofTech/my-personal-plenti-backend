@@ -1,0 +1,57 @@
+services:
+  # Plenti Backend Application
+  - type: web
+    name: plenti-backend
+    env: java
+    region: frankfurt
+    plan: starter
+    buildCommand: mvn clean package -DskipTests
+    startCommand: java -jar target/plenti-backend-1.0.0.jar
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: PORT
+        value: 8080
+      - key: DB_URL
+        fromDatabase:
+          name: plenti-db
+          property: connectionString
+      - key: DB_USER
+        fromDatabase:
+          name: plenti-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: plenti-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+        sync: false
+      - key: MONNIFY_API_KEY
+        sync: false
+      - key: MONNIFY_SECRET_KEY
+        sync: false
+      - key: MONNIFY_CONTRACT_CODE
+        sync: false
+      - key: MONNIFY_BASE_URL
+        value: https://api.monnify.com
+      - key: SMS_API_KEY
+        sync: false
+      - key: MAIL_HOST
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: 587
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: CORS_ORIGINS
+        value: https://plenti-frontend.onrender.com
+
+databases:
+  - name: plenti-db
+    databaseName: plenti_db
+    user: plenti_user
+    plan: starter
+    region: frankfurt
