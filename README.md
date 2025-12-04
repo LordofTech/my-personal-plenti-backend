@@ -6,7 +6,8 @@ Complete Spring Boot backend for **Plenti** - A digital FMCG marketplace in Nige
 
 - **Java 17**
 - **Spring Boot 3.2.0**
-- **MySQL 8.0**
+- **MySQL 8.0** for persistent data storage
+- **Elasticsearch 8.11.0** for fast full-text search
 - **Spring Security + JWT**
 - **WebSocket (STOMP)** for real-time notifications
 - **Lombok** for boilerplate reduction
@@ -51,12 +52,18 @@ Complete Spring Boot backend for **Plenti** - A digital FMCG marketplace in Nige
 - ✅ **Activity Logs** - Audit trail for admin actions
 - ✅ **Combo Deals** - Product bundling feature
 - ✅ **Guest Checkout** - Support for guest users (field added)
+- ✅ **Elasticsearch Integration** - Lightning-fast product search with typo tolerance
+  - Full-text search with fuzzy matching
+  - Advanced filtering (category, price range, stock)
+  - Autocomplete suggestions
+  - Graceful degradation if Elasticsearch is unavailable
 
 ## Prerequisites
 
 - Java 17 or higher
 - Maven 3.6+
 - MySQL 8.0+
+- Elasticsearch 8.11.0 (optional, for enhanced search)
 - Docker (optional)
 
 ## Getting Started
@@ -104,7 +111,14 @@ The application will start on `http://localhost:8080`
    docker-compose up -d
    ```
 
-This will start both MySQL and the Spring Boot application in containers.
+This will start MySQL, Elasticsearch, and the Spring Boot application in containers.
+
+2. **Verify Elasticsearch is running**
+   ```bash
+   curl http://localhost:9200/_cluster/health
+   ```
+
+The application will automatically sync all data from MySQL to Elasticsearch on startup.
 
 ## API Documentation
 
@@ -136,8 +150,17 @@ http://localhost:8080/api-docs
 ### Products
 - `GET /api/products` - List all products
 - `GET /api/products/{id}` - Get product by ID
-- `GET /api/products/search?query=` - Search products
+- `GET /api/products/search?query=` - Search products (MySQL-based)
 - `GET /api/products/category?category=` - Products by category
+
+### Elasticsearch Search (Fast Search)
+- `GET /api/es/products/search?q=` - Lightning-fast product search
+- `GET /api/es/products/advanced-search?q=&category=&minPrice=&maxPrice=&inStock=` - Advanced filtered search
+- `GET /api/es/autocomplete?q=&limit=10` - Get autocomplete suggestions
+- `GET /api/es/categories/search?q=` - Search categories
+- `GET /api/es/stores/search?q=` - Search stores
+- `POST /api/es/reindex` - Manual reindex (admin only)
+- `GET /api/es/health` - Check Elasticsearch health
 
 ### Categories
 - `GET /api/categories` - List all categories
