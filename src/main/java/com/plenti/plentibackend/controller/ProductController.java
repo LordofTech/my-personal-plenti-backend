@@ -56,4 +56,32 @@ public class ProductController {
         List<ProductDTO> products = productService.getProductsByCategoryId(categoryId);
         return ResponseEntity.ok(ResponseDTO.success(products));
     }
+
+    @GetMapping("/clearance")
+    @Operation(summary = "Get clearance products", description = "Get products on clearance sale")
+    public ResponseEntity<ResponseDTO<List<ProductDTO>>> getClearanceProducts() {
+        List<ProductDTO> products = productService.getClearanceProducts();
+        return ResponseEntity.ok(ResponseDTO.success(products));
+    }
+
+    @GetMapping("/freebies")
+    @Operation(summary = "Get freebie products", description = "Get products marked as freebies")
+    public ResponseEntity<ResponseDTO<List<ProductDTO>>> getFreebieProducts() {
+        List<ProductDTO> products = productService.getFreebieProducts();
+        return ResponseEntity.ok(ResponseDTO.success(products));
+    }
+
+    @GetMapping("/featured")
+    @Operation(summary = "Get featured products", description = "Get featured products")
+    public ResponseEntity<ResponseDTO<List<ProductDTO>>> getFeaturedProducts() {
+        List<ProductDTO> products = productService.getFeaturedProducts();
+        return ResponseEntity.ok(ResponseDTO.success(products));
+    }
+
+    @GetMapping("/flash-sales")
+    @Operation(summary = "Get flash sale products", description = "Get products with active flash sales")
+    public ResponseEntity<ResponseDTO<List<ProductDTO>>> getFlashSaleProducts() {
+        List<ProductDTO> products = productService.getFlashSaleProducts();
+        return ResponseEntity.ok(ResponseDTO.success(products));
+    }
 }

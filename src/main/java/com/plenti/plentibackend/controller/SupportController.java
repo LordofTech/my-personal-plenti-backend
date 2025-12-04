@@ -1,8 +1,12 @@
 package com.plenti.plentibackend.controller;
 
 import com.plenti.plentibackend.dto.ResponseDTO;
+import com.plenti.plentibackend.entity.SupportTicket;
+import com.plenti.plentibackend.service.SupportTicketService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +21,9 @@ import java.util.Map;
 @RequestMapping("/api/support")
 @Tag(name = "Support", description = "Support and customer engagement endpoints")
 public class SupportController {
+
+    @Autowired(required = false)
+    private SupportTicketService supportTicketService;
 
     @GetMapping("/faq")
     @Operation(summary = "Get FAQs", description = "Get frequently asked questions")
@@ -78,5 +85,45 @@ public class SupportController {
         topics.put("Delivery", List.of("Delivery times", "Delivery areas", "Contactless delivery"));
         
         return ResponseEntity.ok(ResponseDTO.success(topics));
+    }
+
+    @PostMapping("/tickets")
+    @Operation(summary = "Create support ticket")
+    public ResponseEntity<SupportTicket> createTicket(@RequestBody SupportTicket ticket) {
+        if (supportTicketService == null) {
+            throw new RuntimeException("Support ticket service not available");
+        }
+        return ResponseEntity.ok(supportTicketService.createTicket(ticket));
+    }
+
+    @GetMapping("/tickets/{userId}")
+    @Operation(summary = "Get user's support tickets")
+    public ResponseEntity<List<SupportTicket>> getUserTickets(@PathVariable Long userId) {
+        if (supportTicketService == null) {
+            throw new RuntimeException("Support ticket service not available");
+        }
+        return ResponseEntity.ok(supportTicketService.getUserTickets(userId));
+    }
+
+    @GetMapping("/tickets/status/{status}")
+    @Operation(summary = "Get tickets by status (admin)")
+    public ResponseEntity<List<SupportTicket>> getTicketsByStatus(@PathVariable String status) {
+        if (supportTicketService == null) {
+            throw new RuntimeException("Support ticket service not available");
+        }
+        return ResponseEntity.ok(supportTicketService.getTicketsByStatus(status));
+    }
+
+    @PutMapping("/tickets/{id}/status")
+    @Operation(summary = "Update ticket status (admin)")
+    public ResponseEntity<SupportTicket> updateTicketStatus(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> statusUpdate) {
+        if (supportTicketService == null) {
+            throw new RuntimeException("Support ticket service not available");
+        }
+        String status = statusUpdate.get("status");
+        String resolution = statusUpdate.get("resolution");
+        return ResponseEntity.ok(supportTicketService.updateTicketStatus(id, status, resolution));
     }
 }
