@@ -45,6 +45,21 @@ public class Product {
 
     private Integer reviewCount = 0;
 
+    private Double bulkPrice;
+
+    @Column(nullable = false)
+    private Boolean isClearance = false;
+
+    @Column(nullable = false)
+    private Boolean isFreebie = false;
+
+    @Column(nullable = false)
+    private Boolean isFeatured = false;
+
+    private Double flashSalePrice;
+
+    private LocalDateTime flashSaleEnd;
+
     @PrePersist
     @PreUpdate
     protected void onUpdate() {
@@ -57,6 +72,15 @@ public class Product {
         }
         if (reviewCount == null) {
             reviewCount = 0;
+        }
+        if (isClearance == null) {
+            isClearance = false;
+        }
+        if (isFreebie == null) {
+            isFreebie = false;
+        }
+        if (isFeatured == null) {
+            isFeatured = false;
         }
     }
 }

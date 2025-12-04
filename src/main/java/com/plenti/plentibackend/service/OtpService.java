@@ -20,6 +20,9 @@ public class OtpService {
     @Autowired
     private OtpRepository otpRepository;
 
+    @Autowired
+    private SmsService smsService;
+
     @Value("${otp.expiry.minutes:10}")
     private Integer otpExpiryMinutes;
 
@@ -38,8 +41,8 @@ public class OtpService {
         
         otpRepository.save(otp);
         
-        // In a real application, send SMS here
-        // smsService.sendSms(phoneNumber, "Your Plenti OTP is: " + otpCode);
+        // Send SMS via Termii
+        smsService.sendOtpSms(phoneNumber, otpCode);
         
         return otpCode; // For testing purposes only
     }

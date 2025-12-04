@@ -107,4 +107,28 @@ public class ProductService {
         product.setReviewCount(reviewCount);
         productRepository.save(product);
     }
+
+    public List<ProductDTO> getClearanceProducts() {
+        return productRepository.findByIsClearanceTrueAndStockGreaterThan(0).stream()
+                .map(mapper::toProductDTO)
+                .toList();
+    }
+
+    public List<ProductDTO> getFreebieProducts() {
+        return productRepository.findByIsFreebieTrue().stream()
+                .map(mapper::toProductDTO)
+                .toList();
+    }
+
+    public List<ProductDTO> getFeaturedProducts() {
+        return productRepository.findByIsFeaturedTrue().stream()
+                .map(mapper::toProductDTO)
+                .toList();
+    }
+
+    public List<ProductDTO> getFlashSaleProducts() {
+        return productRepository.findByFlashSaleEndAfter(java.time.LocalDateTime.now()).stream()
+                .map(mapper::toProductDTO)
+                .toList();
+    }
 }
