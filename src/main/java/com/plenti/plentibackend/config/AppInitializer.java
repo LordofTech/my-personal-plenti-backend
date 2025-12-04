@@ -19,6 +19,7 @@ import java.util.Set;
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@org.springframework.core.annotation.Order(1)
 public class AppInitializer implements CommandLineRunner {
 
     private final RoleRepository roleRepository;
