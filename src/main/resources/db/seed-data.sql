@@ -132,7 +132,9 @@ INSERT INTO promo_codes (code, description, discount_percentage, discount_amount
 ('WEEKEND15', 'Weekend special - 15% off', 15.0, null, 2000.00, 3000.00, DATE_ADD(NOW(), INTERVAL 60 DAY), true, null, 0, NOW());
 
 -- ===== ADMIN USER =====
+-- WARNING: These are test users with default passwords for DEVELOPMENT/TESTING ONLY
 -- Password: admin123 (encrypted with BCrypt)
+-- IMPORTANT: DELETE OR CHANGE THESE PASSWORDS IN PRODUCTION!
 INSERT INTO users (name, email, phone_number, password, referral_code, meta_coins, role, suspended, trust_score, is_guest, created_at) VALUES
 ('Admin User', 'admin@plenti.ng', '+2348000000000', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ADMIN001', 0.0, 'ADMIN', false, 100.0, false, NOW()),
 ('Test User', 'user@test.com', '+2348012345678', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'TESTUSER', 2000.0, 'USER', false, 100.0, false, NOW());

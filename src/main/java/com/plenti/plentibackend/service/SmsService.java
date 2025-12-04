@@ -50,16 +50,19 @@ public class SmsService {
             requestBody.put("channel", "generic");
             requestBody.put("api_key", smsApiKey);
 
-            Mono<String> response = webClient.post()
+            // Use subscribe() for async processing instead of block()
+            webClient.post()
                     .uri(smsApiUrl)
                     .header("Content-Type", "application/json")
                     .bodyValue(requestBody)
                     .retrieve()
-                    .bodyToMono(String.class);
-
-            String result = response.block();
-            log.info("SMS sent successfully to {}: {}", phoneNumber, result);
-            return true;
+                    .bodyToMono(String.class)
+                    .subscribe(
+                        result -> log.info("SMS sent successfully to {}: {}", phoneNumber, result),
+                        error -> log.error("Failed to send SMS to {}: {}", phoneNumber, error.getMessage())
+                    );
+            
+            return true; // Return immediately after queueing
         } catch (Exception e) {
             log.error("Failed to send SMS to {}: {}", phoneNumber, e.getMessage());
             return false;

@@ -28,12 +28,40 @@ public class SearchAnalyticsService {
     public void trackSearch(Long userId, String searchTerm, int resultCount) {
         log.info("Tracking search: userId={}, term={}, results={}", userId, searchTerm, resultCount);
         
+        // Sanitize search term
+        String sanitizedTerm = sanitizeSearchTerm(searchTerm);
+        if (sanitizedTerm == null || sanitizedTerm.isEmpty()) {
+            log.warn("Invalid search term after sanitization");
+            return;
+        }
+        
         SearchHistory searchHistory = new SearchHistory();
         searchHistory.setUserId(userId);
-        searchHistory.setSearchTerm(searchTerm.toLowerCase().trim());
+        searchHistory.setSearchTerm(sanitizedTerm);
         searchHistory.setResultCount(resultCount);
         
         searchHistoryRepository.save(searchHistory);
+    }
+    
+    /**
+     * Sanitize search term to prevent injection attacks
+     */
+    private String sanitizeSearchTerm(String searchTerm) {
+        if (searchTerm == null) {
+            return null;
+        }
+        
+        // Remove potentially harmful characters, trim and lowercase
+        String sanitized = searchTerm.trim()
+                .toLowerCase()
+                .replaceAll("[<>\"';]", ""); // Remove dangerous characters
+        
+        // Limit length to prevent abuse
+        if (sanitized.length() > 100) {
+            sanitized = sanitized.substring(0, 100);
+        }
+        
+        return sanitized;
     }
 
     /**

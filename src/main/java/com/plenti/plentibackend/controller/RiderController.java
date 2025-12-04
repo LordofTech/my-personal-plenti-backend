@@ -25,11 +25,14 @@ public class RiderController {
 
     @PostMapping("/login")
     @Operation(summary = "Rider login")
-    public ResponseEntity<Rider> riderLogin(@RequestBody Map<String, String> credentials) {
+    public ResponseEntity<?> riderLogin(@RequestBody Map<String, String> credentials) {
         String phoneNumber = credentials.get("phoneNumber");
-        // Note: Password validation should be added
-        Rider rider = riderService.getRiderByPhoneNumber(phoneNumber);
-        return ResponseEntity.ok(rider);
+        String password = credentials.get("password");
+        
+        // TODO: Implement proper authentication with password validation and JWT token generation
+        // For now, returning error message
+        return ResponseEntity.status(501)
+                .body(Map.of("message", "Rider authentication not fully implemented. Use admin endpoints to manage riders."));
     }
 
     @GetMapping("/available")
