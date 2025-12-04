@@ -19,4 +19,12 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByCategory(String category);
     
     List<Product> findByStockLessThan(Integer threshold);
+    
+    List<Product> findByIsClearanceTrueAndStockGreaterThan(Integer stock);
+    
+    List<Product> findByIsFreebieTrue();
+    
+    List<Product> findByIsFeaturedTrue();
+    
+    List<Product> findByFlashSaleEndAfter(java.time.LocalDateTime now);
 }
