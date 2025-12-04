@@ -15,8 +15,11 @@ Complete Spring Boot backend for **Plenti** - A digital FMCG marketplace in Nige
 
 ## Features
 
+### Core Features
 - ✅ JWT-based authentication with OTP verification
+- ✅ Role-based access control (Admin, User, Rider)
 - ✅ User management with referral system (2000 MetaCoins per referral)
+- ✅ Trust score system for users
 - ✅ Product catalog with search and category filtering
 - ✅ Shopping cart with 7-day persistence
 - ✅ Wishlist management
@@ -29,7 +32,25 @@ Complete Spring Boot backend for **Plenti** - A digital FMCG marketplace in Nige
 - ✅ Admin dashboard with analytics
 - ✅ Real-time notifications via WebSocket
 - ✅ Email service integration
+- ✅ SMS notifications via Termii
 - ✅ Low stock alerts
+
+### New Features
+- ✅ **Product Variants** - Size, color variants support (S, M, L, XL, XXL for Fashion)
+- ✅ **Multiple Product Images** - Gallery support for products
+- ✅ **Clearance Sale** - Products on clearance with discounted prices
+- ✅ **Freebies** - Free products and promotional items
+- ✅ **Featured Products** - Highlighted products on homepage
+- ✅ **Flash Sales** - Time-limited promotional pricing
+- ✅ **Bulk Pricing** - Discounts for bulk purchases
+- ✅ **Banner Management** - Promotional banner system for admins
+- ✅ **Search Analytics** - Track search history and popular terms
+- ✅ **Support Ticket System** - Customer support ticketing
+- ✅ **Rider Management** - Delivery rider operations and tracking
+- ✅ **Real-time Rider Location** - GPS tracking for delivery riders
+- ✅ **Activity Logs** - Audit trail for admin actions
+- ✅ **Combo Deals** - Product bundling feature
+- ✅ **Guest Checkout** - Support for guest users (field added)
 
 ## Prerequisites
 
@@ -243,12 +264,130 @@ Key configuration properties in `application.properties`:
 
 ## Production Deployment
 
-1. Update `application.properties` with production database credentials
-2. Configure production JWT secret
-3. Update Monnify API keys with production credentials
-4. Set up SSL/TLS certificates
-5. Configure email service (SMTP settings)
-6. Set appropriate CORS origins
+### Database Setup
+
+1. **Create MySQL Database**
+   ```sql
+   CREATE DATABASE plenti_db;
+   CREATE USER 'plenti_user'@'%' IDENTIFIED BY 'secure_password';
+   GRANT ALL PRIVILEGES ON plenti_db.* TO 'plenti_user'@'%';
+   FLUSH PRIVILEGES;
+   ```
+
+2. **Load Seed Data**
+   ```bash
+   mysql -u plenti_user -p plenti_db < src/main/resources/db/seed-data.sql
+   ```
+
+### Environment Variables
+
+Set the following environment variables in your production environment:
+
+```bash
+# Database
+export DB_URL="jdbc:mysql://localhost:3306/plenti_db"
+export DB_USER="plenti_user"
+export DB_PASSWORD="your_secure_password"
+
+# JWT
+export JWT_SECRET="your-jwt-secret-min-256-bits-long"
+
+# Payment (Monnify)
+export MONNIFY_API_KEY="your_monnify_api_key"
+export MONNIFY_SECRET_KEY="your_monnify_secret_key"
+export MONNIFY_CONTRACT_CODE="your_contract_code"
+export MONNIFY_BASE_URL="https://api.monnify.com"
+
+# SMS (Termii)
+export SMS_API_KEY="your_termii_api_key"
+
+# Email
+export MAIL_HOST="smtp.gmail.com"
+export MAIL_PORT="587"
+export MAIL_USERNAME="your-email@gmail.com"
+export MAIL_PASSWORD="your-app-password"
+
+# CORS
+export CORS_ORIGINS="https://yourdomain.com"
+```
+
+### Docker Production Deployment
+
+1. **Using Docker Compose Production File**
+   ```bash
+   # Create .env file with your environment variables
+   cp .env.example .env
+   
+   # Edit .env with your production values
+   nano .env
+   
+   # Start services
+   docker-compose -f docker-compose.prod.yml up -d
+   ```
+
+2. **Check Logs**
+   ```bash
+   docker-compose -f docker-compose.prod.yml logs -f plenti-backend
+   ```
+
+3. **Stop Services**
+   ```bash
+   docker-compose -f docker-compose.prod.yml down
+   ```
+
+### Deploy to Render
+
+1. **Push to GitHub**
+   ```bash
+   git push origin main
+   ```
+
+2. **Create New Web Service on Render**
+   - Connect your GitHub repository
+   - Render will automatically detect `render.yaml`
+   - Configure environment variables in Render dashboard
+   - Deploy!
+
+3. **Environment Variables on Render**
+   - Set all required variables in the Render dashboard
+   - JWT_SECRET will be auto-generated
+   - Configure your Monnify and Termii API keys
+
+### Deploy to Railway
+
+1. **Install Railway CLI**
+   ```bash
+   npm i -g @railway/cli
+   ```
+
+2. **Login and Deploy**
+   ```bash
+   railway login
+   railway init
+   railway up
+   ```
+
+3. **Configure Environment**
+   ```bash
+   railway variables set DB_USER=plenti_user
+   railway variables set DB_PASSWORD=your_password
+   # ... set other variables
+   ```
+
+### Health Checks
+
+The application exposes health check endpoints:
+
+```
+GET /actuator/health
+```
+
+Expected response:
+```json
+{
+  "status": "UP"
+}
+```
 
 ## Performance
 
