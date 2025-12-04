@@ -63,7 +63,7 @@ Complete Spring Boot backend for **Plenti** - A digital FMCG marketplace in Nige
 - Java 17 or higher
 - Maven 3.6+
 - MySQL 8.0+
-- Elasticsearch 8.11.0 (optional, for enhanced search)
+- Elasticsearch 8.11.0 (optional, for enhanced search - **disabled by default**)
 - Docker (optional)
 
 ## Getting Started
@@ -104,14 +104,16 @@ Complete Spring Boot backend for **Plenti** - A digital FMCG marketplace in Nige
 
 The application will start on `http://localhost:8080`
 
+**Note:** By default, Elasticsearch is disabled for local development. The application will use MySQL-based search. To enable Elasticsearch, see the [Elasticsearch Configuration](#elasticsearch-configuration) section.
+
 ### Docker Setup
 
-1. **Run with Docker Compose**
+1. **Run with Docker Compose (includes Elasticsearch)**
    ```bash
    docker-compose up -d
    ```
 
-This will start MySQL, Elasticsearch, and the Spring Boot application in containers.
+This will start MySQL, Elasticsearch, and the Spring Boot application in containers. Elasticsearch will be automatically enabled when running via Docker Compose.
 
 2. **Verify Elasticsearch is running**
    ```bash
@@ -119,6 +121,15 @@ This will start MySQL, Elasticsearch, and the Spring Boot application in contain
    ```
 
 The application will automatically sync all data from MySQL to Elasticsearch on startup.
+
+3. **Run without Elasticsearch (MySQL only)**
+   
+   To run only MySQL and the application without Elasticsearch:
+   ```bash
+   docker-compose up -d mysql
+   # Then run the application locally
+   mvn spring-boot:run
+   ```
 
 ## API Documentation
 
@@ -277,6 +288,53 @@ Key configuration properties in `application.properties`:
 - **Monnify Integration**: API keys and contract code
 - **CORS**: Allowed origins for frontend
 
+### Elasticsearch Configuration
+
+By default, Elasticsearch is **disabled** for local development to allow the application to start without requiring Elasticsearch to be running. The application will use MySQL-based search as a fallback.
+
+#### Option 1: Enable Elasticsearch using Environment Variable
+
+Set the `ELASTICSEARCH_ENABLED` environment variable to `true`:
+
+```bash
+export ELASTICSEARCH_ENABLED=true
+mvn spring-boot:run
+```
+
+#### Option 2: Enable Elasticsearch using Spring Profile
+
+Activate the `elasticsearch` profile:
+
+```bash
+mvn spring-boot:run -Dspring-boot.run.profiles=elasticsearch
+```
+
+Or in `application.properties`:
+```properties
+spring.profiles.active=elasticsearch
+```
+
+#### Option 3: Enable Elasticsearch in Docker
+
+When running with Docker Compose, Elasticsearch is automatically enabled:
+
+```bash
+docker-compose up -d
+```
+
+#### Graceful Degradation
+
+Even when Elasticsearch is enabled, if it becomes unavailable, the application will:
+- Continue running without crashing
+- Log warnings about Elasticsearch unavailability
+- Return empty results from Elasticsearch endpoints
+- Still allow MySQL-based search through `/api/products/search`
+
+The Elasticsearch health endpoint can be used to check availability:
+```
+GET /api/es/health
+```
+
 ## Security
 
 - All endpoints except `/api/auth/**` require JWT authentication
@@ -332,6 +390,11 @@ export MAIL_PASSWORD="your-app-password"
 
 # CORS
 export CORS_ORIGINS="https://yourdomain.com"
+
+# Elasticsearch (optional - disabled by default)
+export ELASTICSEARCH_ENABLED="false"
+export ELASTICSEARCH_HOST="localhost"
+export ELASTICSEARCH_PORT="9200"
 ```
 
 ### Docker Production Deployment
