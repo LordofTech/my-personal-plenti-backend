@@ -55,7 +55,7 @@ public class ElasticsearchSyncService {
     private ElasticsearchService elasticsearchService;
 
     /**
-     * Sync all products from MySQL to Elasticsearch
+     * Sync all products from MySQL to Elasticsearch with batch processing
      */
     @Transactional(readOnly = true)
     public void syncAllProducts() {
@@ -67,12 +67,25 @@ public class ElasticsearchSyncService {
         try {
             logger.info("Starting product sync to Elasticsearch");
             List<Product> products = productRepository.findAll();
-            List<ProductDocument> documents = products.stream()
-                    .map(documentMapper::toProductDocument)
-                    .collect(Collectors.toList());
             
-            productSearchRepository.saveAll(documents);
-            logger.info("Successfully synced {} products to Elasticsearch", documents.size());
+            // Process in batches to avoid memory issues with large datasets
+            int batchSize = 100;
+            int totalSynced = 0;
+            
+            for (int i = 0; i < products.size(); i += batchSize) {
+                int end = Math.min(i + batchSize, products.size());
+                List<Product> batch = products.subList(i, end);
+                
+                List<ProductDocument> documents = batch.stream()
+                        .map(documentMapper::toProductDocument)
+                        .collect(Collectors.toList());
+                
+                productSearchRepository.saveAll(documents);
+                totalSynced += documents.size();
+                logger.debug("Synced batch: {}/{} products", totalSynced, products.size());
+            }
+            
+            logger.info("Successfully synced {} products to Elasticsearch", totalSynced);
         } catch (Exception e) {
             logger.error("Error syncing products to Elasticsearch: {}", e.getMessage(), e);
         }
@@ -114,7 +127,7 @@ public class ElasticsearchSyncService {
     }
 
     /**
-     * Sync all categories from MySQL to Elasticsearch
+     * Sync all categories from MySQL to Elasticsearch with batch processing
      */
     @Transactional(readOnly = true)
     public void syncAllCategories() {
@@ -126,19 +139,31 @@ public class ElasticsearchSyncService {
         try {
             logger.info("Starting category sync to Elasticsearch");
             List<Category> categories = categoryRepository.findAll();
-            List<CategoryDocument> documents = categories.stream()
-                    .map(documentMapper::toCategoryDocument)
-                    .collect(Collectors.toList());
             
-            categorySearchRepository.saveAll(documents);
-            logger.info("Successfully synced {} categories to Elasticsearch", documents.size());
+            // Process in batches to avoid memory issues
+            int batchSize = 100;
+            int totalSynced = 0;
+            
+            for (int i = 0; i < categories.size(); i += batchSize) {
+                int end = Math.min(i + batchSize, categories.size());
+                List<Category> batch = categories.subList(i, end);
+                
+                List<CategoryDocument> documents = batch.stream()
+                        .map(documentMapper::toCategoryDocument)
+                        .collect(Collectors.toList());
+                
+                categorySearchRepository.saveAll(documents);
+                totalSynced += documents.size();
+            }
+            
+            logger.info("Successfully synced {} categories to Elasticsearch", totalSynced);
         } catch (Exception e) {
             logger.error("Error syncing categories to Elasticsearch: {}", e.getMessage(), e);
         }
     }
 
     /**
-     * Sync all stores from MySQL to Elasticsearch
+     * Sync all stores from MySQL to Elasticsearch with batch processing
      */
     @Transactional(readOnly = true)
     public void syncAllStores() {
@@ -150,12 +175,24 @@ public class ElasticsearchSyncService {
         try {
             logger.info("Starting store sync to Elasticsearch");
             List<Store> stores = storeRepository.findAll();
-            List<StoreDocument> documents = stores.stream()
-                    .map(documentMapper::toStoreDocument)
-                    .collect(Collectors.toList());
             
-            storeSearchRepository.saveAll(documents);
-            logger.info("Successfully synced {} stores to Elasticsearch", documents.size());
+            // Process in batches to avoid memory issues
+            int batchSize = 100;
+            int totalSynced = 0;
+            
+            for (int i = 0; i < stores.size(); i += batchSize) {
+                int end = Math.min(i + batchSize, stores.size());
+                List<Store> batch = stores.subList(i, end);
+                
+                List<StoreDocument> documents = batch.stream()
+                        .map(documentMapper::toStoreDocument)
+                        .collect(Collectors.toList());
+                
+                storeSearchRepository.saveAll(documents);
+                totalSynced += documents.size();
+            }
+            
+            logger.info("Successfully synced {} stores to Elasticsearch", totalSynced);
         } catch (Exception e) {
             logger.error("Error syncing stores to Elasticsearch: {}", e.getMessage(), e);
         }
