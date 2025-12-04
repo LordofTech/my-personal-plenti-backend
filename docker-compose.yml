@@ -18,15 +18,23 @@ services:
       timeout: 20s
       retries: 10
 
-  redis:
-    image: redis:7-alpine
-    container_name: plenti-redis
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    container_name: plenti-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
-      - "6379:6379"
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
     networks:
       - plenti-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
       timeout: 10s
       retries: 5
 
@@ -39,16 +47,20 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/plenti_db?createDatabaseIfNotExist=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: password
+      ELASTICSEARCH_HOST: elasticsearch
+      ELASTICSEARCH_PORT: 9200
+      ELASTICSEARCH_ENABLED: true
     depends_on:
       mysql:
         condition: service_healthy
-      redis:
+      elasticsearch:
         condition: service_healthy
     networks:
       - plenti-network
 
 volumes:
   mysql_data:
+  elasticsearch_data:
 
 networks:
   plenti-network:

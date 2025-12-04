@@ -23,22 +23,26 @@ services:
       interval: 10s
     restart: unless-stopped
 
-  redis:
-    image: redis:7-alpine
-    container_name: plenti-redis-prod
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    container_name: plenti-elasticsearch-prod
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
-      - "6379:6379"
+      - "9200:9200"
+      - "9300:9300"
     volumes:
-      - redis_data:/data
+      - elasticsearch_data:/usr/share/elasticsearch/data
     networks:
       - plenti-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
       timeout: 10s
       retries: 5
-      interval: 10s
     restart: unless-stopped
-    command: redis-server --appendonly yes
 
   plenti-backend:
     build:
@@ -63,10 +67,13 @@ services:
       MAIL_USERNAME: ${MAIL_USERNAME:-}
       MAIL_PASSWORD: ${MAIL_PASSWORD:-}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      ELASTICSEARCH_HOST: elasticsearch
+      ELASTICSEARCH_PORT: 9200
+      ELASTICSEARCH_ENABLED: true
     depends_on:
       mysql:
         condition: service_healthy
-      redis:
+      elasticsearch:
         condition: service_healthy
     networks:
       - plenti-network
@@ -81,7 +88,7 @@ services:
 volumes:
   mysql_data:
     driver: local
-  redis_data:
+  elasticsearch_data:
     driver: local
 
 networks:
