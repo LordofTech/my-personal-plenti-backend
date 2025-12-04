@@ -140,16 +140,12 @@ public class AuthServiceImpl implements AuthService {
 
         // Check if account is locked
         if (user.getAccountLocked()) {
-            if (user.getLockTime() != null && 
-                user.getLockTime().plusMinutes(LOCK_DURATION_MINUTES).isAfter(LocalDateTime.now())) {
-                long minutesLeft = java.time.Duration.between(LocalDateTime.now(), 
-                        user.getLockTime().plusMinutes(LOCK_DURATION_MINUTES)).toMinutes();
+            if (isAccountCurrentlyLocked(user)) {
+                long minutesLeft = getRemainingLockTimeInMinutes(user);
                 throw new PlentiException("Account is locked. Please try again in " + minutesLeft + " minutes.");
             } else {
                 // Auto-unlock if lock time expired
-                user.setAccountLocked(false);
-                user.setFailedLoginAttempts(0);
-                user.setLockTime(null);
+                unlockAccount(user);
                 userRepository.save(user);
             }
         }
@@ -335,5 +331,21 @@ public class AuthServiceImpl implements AuthService {
 
     private String generateReferralCode() {
         return "PLT" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    }
+
+    private boolean isAccountCurrentlyLocked(User user) {
+        return user.getLockTime() != null && 
+               user.getLockTime().plusMinutes(LOCK_DURATION_MINUTES).isAfter(LocalDateTime.now());
+    }
+
+    private long getRemainingLockTimeInMinutes(User user) {
+        return java.time.Duration.between(LocalDateTime.now(), 
+                user.getLockTime().plusMinutes(LOCK_DURATION_MINUTES)).toMinutes();
+    }
+
+    private void unlockAccount(User user) {
+        user.setAccountLocked(false);
+        user.setFailedLoginAttempts(0);
+        user.setLockTime(null);
     }
 }
