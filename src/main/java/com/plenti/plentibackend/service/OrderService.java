@@ -140,12 +140,19 @@ public class OrderService {
         }
 
         // Restore stock
-        for (String productIdStr : order.getProductIds()) {
-            Long productId = Long.parseLong(productIdStr);
-            Product product = productRepository.findById(productId).orElse(null);
-            if (product != null) {
-                product.setStock(product.getStock() + 1);
-                productRepository.save(product);
+        if (order.getProductIds() != null) {
+            for (String productIdStr : order.getProductIds()) {
+                try {
+                    Long productId = Long.parseLong(productIdStr);
+                    Product product = productRepository.findById(productId).orElse(null);
+                    if (product != null) {
+                        product.setStock(product.getStock() + 1);
+                        productRepository.save(product);
+                    }
+                } catch (NumberFormatException e) {
+                    // Log and skip invalid product ID
+                    System.err.println("Invalid product ID in order: " + productIdStr);
+                }
             }
         }
 

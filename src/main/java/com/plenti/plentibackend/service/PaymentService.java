@@ -65,7 +65,12 @@ public class PaymentService {
                 .orElseThrow(() -> new PlentiException("Payment not found"));
 
         // In a real application, verify with Monnify API
-        // For now, we'll mark as successful
+        // TODO: Implement actual Monnify verification
+        // String verificationResult = monnifyClient.verifyPayment(reference);
+        // For development/testing only - in production, this must call actual payment gateway
+        // throw new PlentiException("Payment verification not yet implemented");
+        
+        // Placeholder: Mark as successful for testing
         payment.setStatus("SUCCESS");
         Payment updatedPayment = paymentRepository.save(payment);
 

@@ -51,12 +51,11 @@ public class AuthController {
     @Operation(summary = "Send OTP", description = "Send OTP verification code to phone number")
     @ApiResponse(responseCode = "200", description = "OTP sent successfully")
     public ResponseEntity<ResponseDTO<OtpDTO>> sendOtp(@Valid @RequestBody OtpDTO otpDTO) {
-        String otpCode = otpService.sendOtp(otpDTO.getPhoneNumber());
+        otpService.sendOtp(otpDTO.getPhoneNumber());
         OtpDTO response = new OtpDTO();
         response.setPhoneNumber(otpDTO.getPhoneNumber());
         response.setMessage("OTP sent successfully");
-        // For testing only - remove in production
-        response.setOtpCode(otpCode);
+        // Note: OTP is sent via SMS, not returned in response for security
         return ResponseEntity.ok(ResponseDTO.success(response));
     }
 

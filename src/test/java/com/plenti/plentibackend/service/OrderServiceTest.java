@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -65,6 +66,7 @@ class OrderServiceTest {
         order = new Order();
         order.setId(1L);
         order.setUserId(1L);
+        order.setProductIds(new ArrayList<>());
         order.setTotalAmount(200.0);
         order.setStatus(OrderStatus.PENDING);
 
