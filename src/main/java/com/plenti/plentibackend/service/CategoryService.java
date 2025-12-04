@@ -38,6 +38,11 @@ public class CategoryService {
     public CategoryDTO getCategoryById(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new PlentiException("Category not found"));
+        
+        // Load subcategories manually
+        List<Category> subcategories = categoryRepository.findByParentId(id);
+        category.setSubcategories(subcategories);
+        
         return mapper.toCategoryDTO(category);
     }
 

@@ -32,7 +32,6 @@ public class Category {
 
     private Long parentId;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
+    @Transient
     private List<Category> subcategories = new ArrayList<>();
 }
