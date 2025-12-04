@@ -36,8 +36,9 @@ public class OtpService {
         Otp otp = new Otp();
         otp.setPhoneNumber(phoneNumber);
         otp.setOtpCode(otpCode);
+        otp.setType(Otp.OtpType.REGISTRATION);
         otp.setExpiresAt(LocalDateTime.now().plusMinutes(otpExpiryMinutes));
-        otp.setVerified(false);
+        otp.setUsed(false);
         
         otpRepository.save(otp);
         
@@ -49,14 +50,11 @@ public class OtpService {
 
     @Transactional
     public boolean verifyOtp(String phoneNumber, String otpCode) {
-        Otp otp = otpRepository.findByPhoneNumberAndOtpCodeAndVerifiedFalse(phoneNumber, otpCode)
-                .orElseThrow(() -> new PlentiException("Invalid OTP"));
+        Otp otp = otpRepository.findByPhoneNumberAndOtpCodeAndTypeAndUsedFalseAndExpiresAtAfter(
+                phoneNumber, otpCode, Otp.OtpType.REGISTRATION, LocalDateTime.now())
+                .orElseThrow(() -> new PlentiException("Invalid or expired OTP"));
 
-        if (otp.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new PlentiException("OTP has expired");
-        }
-
-        otp.setVerified(true);
+        otp.setUsed(true);
         otpRepository.save(otp);
         
         return true;
