@@ -2,21 +2,27 @@ package com.plenti.plentibackend.config;
 
 import com.plenti.plentibackend.entity.Category;
 import com.plenti.plentibackend.entity.Product;
+import com.plenti.plentibackend.entity.Role;
 import com.plenti.plentibackend.entity.Store;
 import com.plenti.plentibackend.entity.User;
 import com.plenti.plentibackend.repository.CategoryRepository;
 import com.plenti.plentibackend.repository.ProductRepository;
+import com.plenti.plentibackend.repository.RoleRepository;
 import com.plenti.plentibackend.repository.StoreRepository;
 import com.plenti.plentibackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import java.util.Set;
 
 /**
  * Data loader to seed sample data on application startup
  */
 @Component
+@Order(2) // Run after AppInitializer
 public class DataLoader implements CommandLineRunner {
 
     @Autowired
@@ -32,6 +38,9 @@ public class DataLoader implements CommandLineRunner {
     private StoreRepository storeRepository;
 
     @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
@@ -43,6 +52,10 @@ public class DataLoader implements CommandLineRunner {
     }
 
     private void loadSampleData() {
+        // Get default USER role
+        Role userRole = roleRepository.findByName("USER")
+                .orElseThrow(() -> new RuntimeException("USER role not found"));
+
         // Create sample user
         User user = new User();
         user.setName("John Doe");
@@ -51,6 +64,8 @@ public class DataLoader implements CommandLineRunner {
         user.setPassword(passwordEncoder.encode("password123"));
         user.setReferralCode("PLTJOHN123");
         user.setMetaCoins(0.0);
+        user.setEnabled(true); // Sample user is pre-verified
+        user.setRoles(Set.of(userRole));
         userRepository.save(user);
 
         // Create sample categories

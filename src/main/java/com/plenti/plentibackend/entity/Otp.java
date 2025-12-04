@@ -11,11 +11,21 @@ import java.time.LocalDateTime;
  * Entity representing an OTP verification code
  */
 @Entity
-@Table(name = "otps")
+@Table(name = "otps", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"phoneNumber", "type"})
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Otp {
+
+    /**
+     * Enum for OTP types
+     */
+    public enum OtpType {
+        REGISTRATION,
+        PASSWORD_RESET
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,11 +37,15 @@ public class Otp {
     @Column(nullable = false)
     private String otpCode;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OtpType type = OtpType.REGISTRATION;
+
     @Column(nullable = false)
     private LocalDateTime expiresAt;
 
     @Column(nullable = false)
-    private Boolean verified = false;
+    private Boolean used = false;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -39,8 +53,11 @@ public class Otp {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        if (verified == null) {
-            verified = false;
+        if (used == null) {
+            used = false;
+        }
+        if (type == null) {
+            type = OtpType.REGISTRATION;
         }
     }
 }
