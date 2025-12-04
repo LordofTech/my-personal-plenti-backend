@@ -13,8 +13,6 @@ import java.util.Optional;
 @Repository
 public interface OtpRepository extends JpaRepository<Otp, Long> {
     
-    Optional<Otp> findByPhoneNumberAndOtpCodeAndVerifiedFalse(String phoneNumber, String otpCode);
-    
     Optional<Otp> findTopByPhoneNumberOrderByCreatedAtDesc(String phoneNumber);
     
     Optional<Otp> findByPhoneNumberAndOtpCodeAndTypeAndUsedFalseAndExpiresAtAfter(
