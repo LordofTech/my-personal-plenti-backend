@@ -13,19 +13,20 @@ Complete API documentation for Plenti - Digital FMCG Marketplace Backend.
 2. [Users](#users)
 3. [Products](#products)
 4. [Categories](#categories)
-5. [Cart](#cart)
-6. [Wishlist](#wishlist)
-7. [Orders](#orders)
-8. [Payments](#payments)
-9. [Addresses](#addresses)
-10. [Reviews](#reviews)
-11. [Promo Codes](#promo-codes)
-12. [Stores](#stores)
-13. [Banners](#banners)
-14. [Search & Analytics](#search--analytics)
-15. [Support & Tickets](#support--tickets)
-16. [Riders](#riders)
-17. [Admin](#admin)
+5. [Elasticsearch Search](#elasticsearch-search)
+6. [Cart](#cart)
+7. [Wishlist](#wishlist)
+8. [Orders](#orders)
+9. [Payments](#payments)
+10. [Addresses](#addresses)
+11. [Reviews](#reviews)
+12. [Promo Codes](#promo-codes)
+13. [Stores](#stores)
+14. [Banners](#banners)
+15. [Search & Analytics](#search--analytics)
+16. [Support & Tickets](#support--tickets)
+17. [Riders](#riders)
+18. [Admin](#admin)
 
 ---
 
@@ -634,6 +635,138 @@ socket.send(JSON.stringify({
   action: 'subscribe',
   channel: '/topic/orders/123'
 }));
+```
+
+---
+
+## Elasticsearch Search
+
+The Plenti backend now includes Elasticsearch integration for lightning-fast search capabilities with fuzzy matching, advanced filtering, and autocomplete.
+
+### Fast Product Search
+```http
+GET /api/es/products/search?q=indomie
+```
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "name": "Indomie Instant Noodles",
+    "description": "Popular instant noodles - Pack of 5",
+    "price": 500.0,
+    "category": "Groceries",
+    "categoryId": 1,
+    "stock": 100,
+    "imageUrl": "https://example.com/indomie.jpg",
+    "averageRating": 4.5,
+    "reviewCount": 10,
+    "isClearance": false,
+    "isFreebie": false,
+    "isFeatured": true,
+    "lastUpdated": "2025-12-04T15:00:00"
+  }
+]
+```
+
+**Features:**
+- Full-text search with fuzzy matching (tolerates typos)
+- Searches across product name, description, and category
+- Boosted scoring: name matches weighted higher than description
+
+### Advanced Product Search
+```http
+GET /api/es/products/advanced-search?q=rice&category=1&minPrice=100&maxPrice=1000&inStock=true
+```
+
+**Query Parameters:**
+- `q` (optional) - Search query text
+- `category` (optional) - Filter by category ID
+- `minPrice` (optional) - Minimum price filter
+- `maxPrice` (optional) - Maximum price filter
+- `inStock` (optional) - Filter for in-stock items only (true/false)
+
+**Response:** Same as above
+
+### Autocomplete Suggestions
+```http
+GET /api/es/autocomplete?q=indo&limit=5
+```
+
+**Response:**
+```json
+[
+  "Indomie Instant Noodles",
+  "Indomie Chicken Flavor",
+  "Indomie Spicy"
+]
+```
+
+### Search Categories
+```http
+GET /api/es/categories/search?q=grocery
+```
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "name": "Groceries",
+    "description": "Essential food items and household goods",
+    "imageUrl": "https://example.com/groceries.jpg",
+    "parentId": null
+  }
+]
+```
+
+### Search Stores
+```http
+GET /api/es/stores/search?q=ikeja
+```
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "name": "Ikeja Dark Store",
+    "location": "Ikeja, Lagos",
+    "type": "dark",
+    "latitude": 6.5964,
+    "longitude": 3.3486
+  }
+]
+```
+
+### Manual Reindex (Admin Only)
+```http
+POST /api/es/reindex
+Authorization: Bearer {admin_jwt_token}
+```
+
+**Response:**
+```json
+{
+  "status": "success",
+  "message": "Reindex started successfully"
+}
+```
+
+Triggers a full reindex of all data from MySQL to Elasticsearch.
+
+### Elasticsearch Health Check
+```http
+GET /api/es/health
+```
+
+**Response:**
+```json
+{
+  "elasticsearch": "UP",
+  "status": "healthy"
+}
 ```
 
 ---
