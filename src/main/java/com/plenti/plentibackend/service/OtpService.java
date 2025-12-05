@@ -61,11 +61,16 @@ public class OtpService {
     }
 
     private String generateOtp() {
-        Random random = new Random();
-        StringBuilder otp = new StringBuilder();
-        for (int i = 0; i < otpLength; i++) {
-            otp.append(random.nextInt(10));
-        }
-        return otp.toString();
+        // TESTING MODE: Use default OTP "1234" for testing purposes
+        // TODO: Revert to real OTP generation when Termii API keys are available
+        // Original production code (commented out):
+        // Random random = new Random();
+        // StringBuilder otp = new StringBuilder();
+        // for (int i = 0; i < otpLength; i++) {
+        //     otp.append(random.nextInt(10));
+        // }
+        // return otp.toString();
+        
+        return "1234"; // Testing default OTP
     }
 }
