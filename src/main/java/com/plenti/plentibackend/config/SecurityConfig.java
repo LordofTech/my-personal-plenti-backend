@@ -18,11 +18,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 /**
  * Security configuration for JWT authentication
  * 
- * ⚠️ TESTING MODE: All endpoints are currently public (permitAll)
- * This is a temporary configuration for testing purposes until Termii OTP API keys are obtained.
- * 
- * TO REVERT TO PRODUCTION MODE:
- * Change .anyRequest().permitAll() to .anyRequest().authenticated() in the securityFilterChain method
+ * TESTING MODE: Using default OTP "1234" for authentication flow testing
+ * Most endpoints require authentication. See securityFilterChain method for public endpoints.
  */
 @Configuration
 @EnableWebSecurity
@@ -43,51 +40,23 @@ public class SecurityConfig {
             // Enable CORS using the configuration from CorsConfig
             .cors(cors -> cors.configurationSource(corsConfigurationSource))
             .authorizeHttpRequests(auth -> auth
-                // ⚠️ TESTING MODE: ALL endpoints are public for testing
-                // Authentication endpoints
+                // Authentication endpoints - Public
                 .requestMatchers("/api/auth/**").permitAll()
-                // User management
-                .requestMatchers("/api/users/**").permitAll()
-                // Product endpoints
-                .requestMatchers("/api/products/**").permitAll()
-                // Category endpoints
-                .requestMatchers("/api/categories/**").permitAll()
-                // Shopping cart
-                .requestMatchers("/api/cart/**").permitAll()
-                // Wishlist
-                .requestMatchers("/api/wishlist/**").permitAll()
-                // Orders
-                .requestMatchers("/api/orders/**").permitAll()
-                // Payments
-                .requestMatchers("/api/payments/**").permitAll()
-                // Addresses
-                .requestMatchers("/api/addresses/**").permitAll()
-                // Reviews
-                .requestMatchers("/api/reviews/**").permitAll()
-                // Promo codes
-                .requestMatchers("/api/promo/**").permitAll()
-                // Stores
-                .requestMatchers("/api/stores/**").permitAll()
-                // Banners
-                .requestMatchers("/api/banners/**").permitAll()
-                // Support & tickets
-                .requestMatchers("/api/support/**").permitAll()
-                // Search analytics
-                .requestMatchers("/api/search/**").permitAll()
-                // Riders
-                .requestMatchers("/api/rider/**").permitAll()
-                // Admin dashboard
-                .requestMatchers("/api/admin/**").permitAll()
-                // Elasticsearch
-                .requestMatchers("/api/es/**").permitAll()
-                // Swagger documentation
+                // Swagger documentation - Public
                 .requestMatchers("/swagger-ui/**", "/api-docs/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-                // Health checks
-                .requestMatchers("/actuator/**").permitAll()
-                // WebSocket
+                // WebSocket - Public
                 .requestMatchers("/ws/**").permitAll()
-                // TODO: For production, change this to .authenticated() when Termii API keys are obtained
-                .anyRequest().permitAll()
+                // Support FAQ and help - Public
+                .requestMatchers("/api/support/faq", "/api/support/help").permitAll()
+                // Browsing endpoints (GET only) - Public
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/products/**").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/categories/**").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/stores/**").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/banners").permitAll()
+                // Health checks - Public
+                .requestMatchers("/actuator/**").permitAll()
+                // All other endpoints require authentication
+                .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
