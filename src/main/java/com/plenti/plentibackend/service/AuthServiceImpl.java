@@ -82,6 +82,7 @@ public class AuthServiceImpl implements AuthService {
                 .success(true)
                 .message("Registration successful. Please verify OTP sent to your phone.")
                 .phoneNumber(request.getPhoneNumber())
+                .email(request.getEmail())
                 .build();
     }
 
@@ -116,6 +117,7 @@ public class AuthServiceImpl implements AuthService {
                     .token(token)
                     .refreshToken(refreshToken)
                     .phoneNumber(user.getPhoneNumber())
+                    .email(user.getEmail())
                     .name(user.getName())
                     .userId(user.getId())
                     .isVerified(true)
@@ -189,6 +191,7 @@ public class AuthServiceImpl implements AuthService {
                 .token(token)
                 .refreshToken(refreshToken)
                 .phoneNumber(user.getPhoneNumber())
+                .email(user.getEmail())
                 .name(user.getName())
                 .userId(user.getId())
                 .build();
@@ -218,6 +221,10 @@ public class AuthServiceImpl implements AuthService {
                 .message("Token refreshed successfully")
                 .token(newToken)
                 .refreshToken(refreshToken)
+                .phoneNumber(user.getPhoneNumber())
+                .email(user.getEmail())
+                .name(user.getName())
+                .userId(user.getId())
                 .build();
     }
 

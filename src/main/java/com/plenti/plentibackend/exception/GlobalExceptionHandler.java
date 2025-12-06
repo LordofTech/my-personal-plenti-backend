@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseDTO<Object>> handlePlentiException(PlentiException ex) {
         return ResponseEntity
                 .badRequest()
-                .body(ResponseDTO.error(ex.getMessage()));
+                .body(ResponseDTO.error(400, ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -34,10 +34,7 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
         
-        ResponseDTO<Map<String, String>> response = new ResponseDTO<>();
-        response.setSuccess(false);
-        response.setMessage("Validation failed");
-        response.setData(errors);
+        ResponseDTO<Map<String, String>> response = new ResponseDTO<>(400, false, "Validation failed", errors);
         
         return ResponseEntity.badRequest().body(response);
     }
@@ -46,6 +43,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseDTO<Object>> handleGeneralException(Exception ex) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseDTO.error("An error occurred: " + ex.getMessage()));
+                .body(ResponseDTO.error(500, "An error occurred: " + ex.getMessage()));
     }
 }
