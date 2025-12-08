@@ -5,6 +5,7 @@ package com.plenti.plentibackend.entity;
  */
 public enum OrderStatus {
     PENDING,
+    PROCESSING,
     CONFIRMED,
     PACKED,
     OUT_FOR_DELIVERY,

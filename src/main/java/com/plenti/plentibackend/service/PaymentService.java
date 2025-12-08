@@ -77,8 +77,10 @@ public class PaymentService {
         return mapper.toPaymentDTO(updatedPayment);
     }
 
+    // Updated method to use the new repository method
     public PaymentDTO getPaymentByOrderId(Long orderId) {
-        Payment payment = paymentRepository.findByOrderId(orderId)
+        // Get the most recent payment for the given order ID
+        Payment payment = paymentRepository.findTopByOrderIdOrderByCreatedAtDesc(orderId)
                 .orElseThrow(() -> new PlentiException("Payment not found"));
         return mapper.toPaymentDTO(payment);
     }

@@ -32,6 +32,13 @@ public class Store {
     private Integer inventoryCapacity;
 
     private Double latitude;
-
     private Double longitude;
+
+    // New optional fields
+    private String city; // New field
+    private String state; // New field
+    private String phone; // New field
+    private String email; // New field
+    private String operatingHours; // New field
+    private Boolean active = true; // New field, default to true
 }
