@@ -51,6 +51,7 @@ public class MonnifyService {
 
     /**
      * Authenticate with Monnify API
+     * TODO: Implement actual Monnify authentication when API keys are configured
      */
     public String authenticate() {
         if (monnifyApiKey == null || monnifyApiKey.isEmpty()) {
@@ -59,7 +60,9 @@ public class MonnifyService {
         }
 
         try {
-            // In production, call Monnify auth endpoint
+            // TODO: In production, implement actual Monnify API authentication call
+            // POST to monnifyBaseUrl + "/api/v1/auth/login"
+            // with Basic Auth (apiKey:secretKey) to get access token
             log.info("Authenticating with Monnify...");
             return "mock-token";
         } catch (Exception e) {
@@ -106,6 +109,7 @@ public class MonnifyService {
 
     /**
      * Verify transaction status
+     * TODO: Implement actual Monnify transaction verification when API keys are configured
      */
     @Transactional
     public PaymentTransactionDTO verifyTransaction(String transactionReference) {
@@ -113,8 +117,10 @@ public class MonnifyService {
                 .findByTransactionReference(transactionReference)
                 .orElseThrow(() -> new PlentiException("Transaction not found"));
 
-        // In production, call Monnify API to verify transaction
-        // For now, simulate verification
+        // TODO: In production, implement actual Monnify API verification call
+        // GET to monnifyBaseUrl + "/api/v2/transactions/" + transactionReference
+        // with Bearer token from authenticate() method
+        // Update transaction status based on API response
         log.info("Verifying transaction: {}", transactionReference);
 
         return toPaymentTransactionDTO(transaction);

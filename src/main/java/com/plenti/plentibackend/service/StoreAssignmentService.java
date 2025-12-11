@@ -6,6 +6,7 @@ import com.plenti.plentibackend.exception.PlentiException;
 import com.plenti.plentibackend.repository.StoreRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -23,9 +24,15 @@ public class StoreAssignmentService {
     private StoreRepository storeRepository;
 
     private static final double EARTH_RADIUS_KM = 6371.0;
-    private static final double AVG_SPEED_KMH = 40.0; // Average delivery speed in km/h
-    private static final double BASE_DELIVERY_FEE = 500.0; // Base fee in currency units
-    private static final double PER_KM_FEE = 50.0; // Fee per kilometer
+    
+    @Value("${store.delivery.avg-speed-kmh:40.0}")
+    private double avgSpeedKmh; // Average delivery speed in km/h
+    
+    @Value("${store.delivery.base-fee:500.0}")
+    private double baseDeliveryFee; // Base fee in currency units
+    
+    @Value("${store.delivery.per-km-fee:50.0}")
+    private double perKmFee; // Fee per kilometer
 
     /**
      * Find nearest store to given coordinates
@@ -71,7 +78,7 @@ public class StoreAssignmentService {
 
         double distanceKm = calculateDistance(
                 store.getLatitude(), store.getLongitude(), destLat, destLng);
-        double etaMinutes = (distanceKm / AVG_SPEED_KMH) * 60;
+        double etaMinutes = (distanceKm / avgSpeedKmh) * 60;
 
         Map<String, Object> result = new HashMap<>();
         result.put("storeId", storeId);
@@ -96,14 +103,14 @@ public class StoreAssignmentService {
 
         double distanceKm = calculateDistance(
                 store.getLatitude(), store.getLongitude(), destLat, destLng);
-        double deliveryFee = BASE_DELIVERY_FEE + (distanceKm * PER_KM_FEE);
+        double deliveryFee = baseDeliveryFee + (distanceKm * perKmFee);
 
         Map<String, Object> result = new HashMap<>();
         result.put("storeId", storeId);
         result.put("distanceKm", Math.round(distanceKm * 100.0) / 100.0);
         result.put("deliveryFee", Math.round(deliveryFee * 100.0) / 100.0);
-        result.put("baseFee", BASE_DELIVERY_FEE);
-        result.put("distanceFee", Math.round((distanceKm * PER_KM_FEE) * 100.0) / 100.0);
+        result.put("baseFee", baseDeliveryFee);
+        result.put("distanceFee", Math.round((distanceKm * perKmFee) * 100.0) / 100.0);
 
         return result;
     }

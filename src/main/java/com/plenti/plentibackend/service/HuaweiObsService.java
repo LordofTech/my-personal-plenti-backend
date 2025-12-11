@@ -140,11 +140,25 @@ public class HuaweiObsService {
     }
 
     private String extractObjectKeyFromUrl(String fileUrl) {
-        // Extract object key from full URL
+        // Extract object key from full URL using proper URI parsing
         // Example: https://obs.af-south-1.myhuaweicloud.com/bucket/path/file.jpg -> path/file.jpg
-        if (fileUrl.contains(bucketName + "/")) {
-            return fileUrl.substring(fileUrl.indexOf(bucketName + "/") + bucketName.length() + 1);
+        try {
+            java.net.URI uri = new java.net.URI(fileUrl);
+            String path = uri.getPath();
+            // Remove leading slash and bucket name if present
+            if (path.startsWith("/" + bucketName + "/")) {
+                return path.substring(("/" + bucketName + "/").length());
+            } else if (path.startsWith("/")) {
+                return path.substring(1);
+            }
+            return path;
+        } catch (Exception e) {
+            log.warn("Failed to parse URL, using fallback method: {}", e.getMessage());
+            // Fallback to original logic
+            if (fileUrl.contains(bucketName + "/")) {
+                return fileUrl.substring(fileUrl.indexOf(bucketName + "/") + bucketName.length() + 1);
+            }
+            return fileUrl;
         }
-        return fileUrl;
     }
 }
