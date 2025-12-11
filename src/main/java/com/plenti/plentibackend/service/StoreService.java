@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Service for store management operations
@@ -22,6 +23,9 @@ public class StoreService {
 
     @Autowired
     private Mapper mapper;
+    
+    @Autowired
+    private StoreAssignmentService storeAssignmentService;
 
     public List<StoreDTO> getAllStores() {
         return storeRepository.findAll().stream()
@@ -106,5 +110,17 @@ public class StoreService {
                 Math.sin(dLon / 2) * Math.sin(dLon / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
+    }
+    
+    public Map<String, Object> calculateETA(Long storeId, double latitude, double longitude) {
+        return storeAssignmentService.calculateETA(storeId, latitude, longitude);
+    }
+    
+    public Map<String, Object> calculateDeliveryFee(Long storeId, double latitude, double longitude) {
+        return storeAssignmentService.calculateDeliveryFee(storeId, latitude, longitude);
+    }
+    
+    public Map<String, Object> checkDeliveryCoverage(double latitude, double longitude) {
+        return storeAssignmentService.checkDeliveryCoverage(latitude, longitude);
     }
 }

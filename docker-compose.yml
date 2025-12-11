@@ -22,7 +22,16 @@ services:
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -35,6 +44,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+      start_period: 60s
 
   plenti-backend:
     build: .
@@ -48,6 +58,13 @@ services:
       ELASTICSEARCH_HOST: elasticsearch
       ELASTICSEARCH_PORT: 9200
       ELASTICSEARCH_ENABLED: true
+      JWT_SECRET: ${JWT_SECRET:-default_jwt_secret_change_in_production}
+      HUAWEI_OBS_ACCESS_KEY_ID: ${HUAWEI_OBS_ACCESS_KEY_ID:-}
+      HUAWEI_OBS_SECRET_ACCESS_KEY: ${HUAWEI_OBS_SECRET_ACCESS_KEY:-}
+      HUAWEI_OBS_BUCKET_NAME: ${HUAWEI_OBS_BUCKET_NAME:-plenti-storage}
+      TERMII_API_KEY: ${TERMII_API_KEY:-}
+      MONNIFY_API_KEY: ${MONNIFY_API_KEY:-}
+      MONNIFY_SECRET_KEY: ${MONNIFY_SECRET_KEY:-}
     depends_on:
       mysql:
         condition: service_healthy
@@ -55,6 +72,7 @@ services:
         condition: service_healthy
     networks:
       - plenti-network
+    restart: unless-stopped
 
 volumes:
   mysql_data:
