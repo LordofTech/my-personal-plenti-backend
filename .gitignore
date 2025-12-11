@@ -41,3 +41,14 @@ build/
 ### Environment ###
 .env
 .env.local
+.env.*.local
+
+### Temporary Files ###
+*.tmp
+*.temp
+/tmp/
+
+### Build Artifacts ###
+*.class
+*.jar
+*.war

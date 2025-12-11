@@ -31,33 +31,116 @@ spec:
         - containerPort: 8080
         env:
           - name: DB_URL
-            value: "jdbc:mysql://c039e01d33724bf4b444c7a5277a38c2in01.internal. af-south-1.mysql. rds.myhuaweicloud.com/plenti_db? createDatabaseIfNotExist=true&autoReconnect=TRUE"
+            valueFrom:
+              secretKeyRef:
+                name: plenti-backend-secret
+                key: DB_URL
+                optional: true
           - name: DB_USERNAME
-            value: "root"
+            valueFrom:
+              secretKeyRef:
+                name: plenti-backend-secret
+                key: DB_USERNAME
+                optional: true
           - name: DB_PASSWORD
-            value: "Motopay@010224"
+            valueFrom:
+              secretKeyRef:
+                name: plenti-backend-secret
+                key: DB_PASSWORD
+                optional: true
           - name: JWT_SECRET
-            value: "mJtBSGr/RbOYN6j4K2t2HCSEPVPU8iUdOhb4kWLkinmRyLe1AvvHx0gZExapUecvKrqYIYUeZilgaKFosD3PKA=="
+            valueFrom:
+              secretKeyRef:
+                name: plenti-backend-secret
+                key: JWT_SECRET
+                optional: true
           - name: CORS_ORIGINS
-            value: "http://localhost:3000,http://localhost:4200,https://plenti-frontend.onrender.com,https://plenti-backend.staging-api.motopayng. com"
+            value: "http://localhost:3000,http://localhost:4200,https://plenti-frontend.onrender.com,https://plenti-backend.staging-api.motopayng.com"
+          - name: HUAWEI_OBS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: plenti-backend-secret
+                key: HUAWEI_OBS_ACCESS_KEY_ID
+                optional: true
+          - name: HUAWEI_OBS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: plenti-backend-secret
+                key: HUAWEI_OBS_SECRET_ACCESS_KEY
+                optional: true
+          - name: HUAWEI_OBS_BUCKET_NAME
+            valueFrom:
+              secretKeyRef:
+                name: plenti-backend-secret
+                key: HUAWEI_OBS_BUCKET_NAME
+                optional: true
+          - name: HUAWEI_OBS_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: plenti-backend-secret
+                key: HUAWEI_OBS_ENDPOINT
+                optional: true
+          - name: TERMII_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: plenti-backend-secret
+                key: TERMII_API_KEY
+                optional: true
+          - name: TERMII_SENDER_ID
+            valueFrom:
+              secretKeyRef:
+                name: plenti-backend-secret
+                key: TERMII_SENDER_ID
+                optional: true
           - name: MONNIFY_API_KEY
-            value: ""
+            valueFrom:
+              secretKeyRef:
+                name: plenti-backend-secret
+                key: MONNIFY_API_KEY
+                optional: true
           - name: MONNIFY_SECRET_KEY
-            value: ""
+            valueFrom:
+              secretKeyRef:
+                name: plenti-backend-secret
+                key: MONNIFY_SECRET_KEY
+                optional: true
           - name: MONNIFY_CONTRACT_CODE
-            value: ""
+            valueFrom:
+              secretKeyRef:
+                name: plenti-backend-secret
+                key: MONNIFY_CONTRACT_CODE
+                optional: true
           - name: MONNIFY_BASE_URL
-            value: "https://sandbox.monnify.com"
+            valueFrom:
+              secretKeyRef:
+                name: plenti-backend-secret
+                key: MONNIFY_BASE_URL
+                optional: true
           - name: MAIL_HOST
-            value: "smtp. gmail.com"
+            valueFrom:
+              secretKeyRef:
+                name: plenti-backend-secret
+                key: MAIL_HOST
+                optional: true
           - name: MAIL_PORT
-            value: "587"
+            valueFrom:
+              secretKeyRef:
+                name: plenti-backend-secret
+                key: MAIL_PORT
+                optional: true
           - name: MAIL_USERNAME
-            value: ""
+            valueFrom:
+              secretKeyRef:
+                name: plenti-backend-secret
+                key: MAIL_USERNAME
+                optional: true
           - name: MAIL_PASSWORD
-            value: ""
-          - name: SMS_API_KEY
-            value: ""
+            valueFrom:
+              secretKeyRef:
+                name: plenti-backend-secret
+                key: MAIL_PASSWORD
+                optional: true
+        # Alternative: Use envFrom to load all secrets at once
         # envFrom:
         #   - secretRef:
         #       name: plenti-backend-secret
