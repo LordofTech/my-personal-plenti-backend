@@ -16,13 +16,13 @@ import java.util.Map;
 @Slf4j
 public class SmsService {
 
-    @Value("${sms.api.key:}")
-    private String smsApiKey;
+    @Value("${termii.api.key:}")
+    private String termiiApiKey;
 
-    @Value("${sms.api.url:https://api.ng.termii.com/api/sms/send}")
-    private String smsApiUrl;
+    @Value("${termii.api.url:https://api.ng.termii.com/api}")
+    private String termiiApiUrl;
 
-    @Value("${sms.sender.id:Plenti}")
+    @Value("${termii.sender.id:Plenti}")
     private String senderId;
 
     private final WebClient webClient;
@@ -32,11 +32,11 @@ public class SmsService {
     }
 
     /**
-     * Send SMS to a phone number
+     * Send SMS to a phone number using Termii API
      */
     public boolean sendSms(String phoneNumber, String message) {
-        if (smsApiKey == null || smsApiKey.isEmpty()) {
-            log.warn("SMS API key not configured. Skipping SMS send to {}", phoneNumber);
+        if (termiiApiKey == null || termiiApiKey.isEmpty()) {
+            log.warn("Termii API key not configured. Skipping SMS send to {}", phoneNumber);
             log.info("SMS Message: {}", message);
             return true; // Return true in development mode
         }
@@ -48,23 +48,23 @@ public class SmsService {
             requestBody.put("sms", message);
             requestBody.put("type", "plain");
             requestBody.put("channel", "generic");
-            requestBody.put("api_key", smsApiKey);
+            requestBody.put("api_key", termiiApiKey);
 
             // Use subscribe() for async processing instead of block()
             webClient.post()
-                    .uri(smsApiUrl)
+                    .uri(termiiApiUrl + "/sms/send")
                     .header("Content-Type", "application/json")
                     .bodyValue(requestBody)
                     .retrieve()
                     .bodyToMono(String.class)
                     .subscribe(
-                        result -> log.info("SMS sent successfully to {}: {}", phoneNumber, result),
-                        error -> log.error("Failed to send SMS to {}: {}", phoneNumber, error.getMessage())
+                        result -> log.info("SMS sent successfully via Termii to {}: {}", phoneNumber, result),
+                        error -> log.error("Failed to send SMS via Termii to {}: {}", phoneNumber, error.getMessage())
                     );
             
             return true; // Return immediately after queueing
         } catch (Exception e) {
-            log.error("Failed to send SMS to {}: {}", phoneNumber, e.getMessage());
+            log.error("Failed to send SMS via Termii to {}: {}", phoneNumber, e.getMessage());
             return false;
         }
     }
