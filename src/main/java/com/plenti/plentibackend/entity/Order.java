@@ -50,6 +50,8 @@ public class Order {
     private String riderId;
 
     private String riderName;
+    
+    private Long storeId;
 
     private LocalDateTime estimatedDelivery;
 
@@ -98,6 +100,9 @@ public class Order {
     
     public String getRiderName() { return riderName; }
     public void setRiderName(String riderName) { this.riderName = riderName; }
+    
+    public Long getStoreId() { return storeId; }
+    public void setStoreId(Long storeId) { this.storeId = storeId; }
     
     public LocalDateTime getEstimatedDelivery() { return estimatedDelivery; }
     public void setEstimatedDelivery(LocalDateTime estimatedDelivery) { this.estimatedDelivery = estimatedDelivery; }
