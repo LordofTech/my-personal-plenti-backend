@@ -65,4 +65,21 @@ public class ChatbotController {
         
         return ResponseEntity.ok(ResponseDTO.success("Escalated to support", response));
     }
+    
+    @GetMapping("/order-status/{orderId}")
+    @Operation(summary = "Get order status", description = "Get order status through chatbot")
+    public ResponseEntity<ResponseDTO<Map<String, Object>>> getOrderStatus(
+            @PathVariable Long orderId,
+            @RequestParam Long userId) {
+        Map<String, Object> status = chatbotService.getOrderStatus(userId, orderId);
+        return ResponseEntity.ok(ResponseDTO.success(status));
+    }
+    
+    @GetMapping("/faqs/search")
+    @Operation(summary = "Search FAQs", description = "Search FAQs by keyword")
+    public ResponseEntity<ResponseDTO<List<FAQDT>>> searchFAQs(
+            @RequestParam String keyword) {
+        List<FAQDT> faqs = chatbotService.searchFAQs(keyword);
+        return ResponseEntity.ok(ResponseDTO.success(faqs));
+    }
 }

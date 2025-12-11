@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Controller for store operations
@@ -74,5 +75,34 @@ public class StoreController {
             @RequestParam Double longitude) {
         StoreDTO store = storeService.findNearestStore(latitude, longitude);
         return ResponseEntity.ok(ResponseDTO.success("Nearest store found", store));
+    }
+    
+    @GetMapping("/eta")
+    @Operation(summary = "Calculate ETA", description = "Calculate estimated time of arrival from store to destination")
+    public ResponseEntity<ResponseDTO<Map<String, Object>>> calculateETA(
+            @RequestParam Long storeId,
+            @RequestParam double latitude,
+            @RequestParam double longitude) {
+        Map<String, Object> eta = storeService.calculateETA(storeId, latitude, longitude);
+        return ResponseEntity.ok(ResponseDTO.success(eta));
+    }
+    
+    @GetMapping("/delivery-fee")
+    @Operation(summary = "Calculate delivery fee", description = "Calculate delivery fee from store to destination")
+    public ResponseEntity<ResponseDTO<Map<String, Object>>> calculateDeliveryFee(
+            @RequestParam Long storeId,
+            @RequestParam double latitude,
+            @RequestParam double longitude) {
+        Map<String, Object> fee = storeService.calculateDeliveryFee(storeId, latitude, longitude);
+        return ResponseEntity.ok(ResponseDTO.success(fee));
+    }
+    
+    @GetMapping("/coverage")
+    @Operation(summary = "Check delivery coverage", description = "Check if a location is within delivery coverage")
+    public ResponseEntity<ResponseDTO<Map<String, Object>>> checkDeliveryCoverage(
+            @RequestParam double latitude,
+            @RequestParam double longitude) {
+        Map<String, Object> coverage = storeService.checkDeliveryCoverage(latitude, longitude);
+        return ResponseEntity.ok(ResponseDTO.success(coverage));
     }
 }
