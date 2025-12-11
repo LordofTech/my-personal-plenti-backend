@@ -12,7 +12,12 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Service for Huawei OBS (Object Storage Service) file operations
@@ -223,8 +228,6 @@ public class HuaweiObsService {
             result.put("contentLength", metadata.getContentLength());
             result.put("lastModified", metadata.getLastModified());
             result.put("etag", metadata.getEtag());
-            // Note: getUserMetadata() requires a key parameter in this SDK version
-            // result.put("userMetadata", metadata.getUserMetadata());
             
             return result;
         } catch (Exception e) {

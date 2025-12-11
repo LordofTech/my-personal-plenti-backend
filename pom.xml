@@ -100,6 +100,7 @@
         </dependency>
 
         <!-- Huawei Cloud OBS SDK -->
+        <!-- Using bundle version for better dependency management and to avoid conflicts -->
         <dependency>
             <groupId>com.huaweicloud</groupId>
             <artifactId>esdk-obs-java-bundle</artifactId>

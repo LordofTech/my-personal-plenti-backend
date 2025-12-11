@@ -50,6 +50,12 @@ public class FulfillmentService {
     @Value("${fulfillment.max-rider-distance-km:10.0}")
     private double maxRiderDistanceKm;
 
+    @Value("${fulfillment.default.latitude:6.5244}")
+    private double defaultLatitude; // Default Lagos coordinates
+    
+    @Value("${fulfillment.default.longitude:3.3792}")
+    private double defaultLongitude;
+
     private static final double EARTH_RADIUS_KM = 6371.0;
 
     /**
@@ -429,9 +435,9 @@ public class FulfillmentService {
      * In production, use a geocoding service
      */
     private double[] extractCoordinatesFromAddress(String address) {
-        // Default to Lagos coordinates for demo
+        // Use configured default coordinates
         // In production, implement proper geocoding
-        return new double[]{6.5244, 3.3792};
+        return new double[]{defaultLatitude, defaultLongitude};
     }
 
     /**
